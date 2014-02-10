@@ -1,0 +1,1 @@
+#include <QtSpotify/playqueue.h>
