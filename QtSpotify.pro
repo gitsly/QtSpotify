@@ -19,7 +19,9 @@ SOURCES += \
         src/session.cpp \
         src/toplist.cpp \
         src/track.cpp \
-    src/audioplayer.cpp
+        src/user.cpp \
+        src/playlistcontainer.cpp \
+        src/audioplayer.cpp
 
 HEADERS += \
         include/QtSpotify/qtspotify_global.h \
@@ -33,9 +35,11 @@ HEADERS += \
         include/QtSpotify/session.h \
         include/QtSpotify/toplist.h \
         include/QtSpotify/track.h \
+        include/QtSpotify/user.h \
+        include/QtSpotify/playlistcontainer.h \
         sessionevents.h \
         sessioncallbacks.h \
-    audioplayer.h
+        audioplayer.h
 
 INCLUDEPATH += include
 
