@@ -37,6 +37,10 @@ public:
     Q_INVOKABLE bool ownsPlaylist(SpotifyPlaylist* playlist);
     Q_INVOKABLE bool canModifyPlaylist(SpotifyPlaylist* playlist);
 
+private slots:
+
+    void updateData();
+
 signals:
 
     void userDataChanged();
