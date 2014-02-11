@@ -14,16 +14,16 @@ static void SP_CALLCONV loggedInCallback(sp_session* session, sp_error error) {
 
     if(error == SP_ERROR_OK) {
         //Logged in event
-        QCoreApplication::postEvent(SpotifySession::instance(), new QEvent(QEvent::Type(QEvent::User + 14)));
+        QCoreApplication::postEvent(SpotifySession::instance(), new QEvent(QEvent::Type(QEvent::User + EventOffset::LoggedIn)));
     }
 }
 
 static void SP_CALLCONV loggedOutCallback(sp_session* session) {
-    QCoreApplication::postEvent(SpotifySession::instance(), new QEvent(QEvent::Type(QEvent::User + 14)));
+    QCoreApplication::postEvent(SpotifySession::instance(), new QEvent(QEvent::Type(QEvent::User + EventOffset::LoggedOut)));
 }
 
 static void SP_CALLCONV metadataUpdatedCallback(sp_session* session) {
-    QCoreApplication::postEvent(SpotifySession::instance(), new QEvent(QEvent::Type(QEvent::User + 2));
+    QCoreApplication::postEvent(SpotifySession::instance(), new QEvent(QEvent::Type(QEvent::User + EventOffset::MetadataUpdated));
 }
 
 static void SP_CALLCONV connectionErrorCallback(sp_session* session, sp_error error) {

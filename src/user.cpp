@@ -92,6 +92,11 @@ SpotifyPlaylist* SpotifyUser::inbox() const
     return m_inbox;
 }
 
+QList<SpotifyPlaylist*> SpotifyUser::playlists() const
+{
+    return m_playlistContainer->playlists();
+}
+
 bool SpotifyUser::createPlaylist(const QString& name)
 {
     if(name.trimmed().isEmpty()) {
@@ -113,61 +118,108 @@ bool SpotifyUser::createPlaylistInFolder(const QString& name, SpotifyPlaylist* f
         return createPlaylist(name);
     }
 
+    //Names can't be empty
     if(name.trimmed().isEmpty()) {
         return false;
     }
 
-    QString n = name.trimmed();
-    if(n.size() > 255) {
-        n.resize(255);
+    QString trimmed = name.trimmed();
+    if(trimmed.size() > 255) {
+        trimmed.resize(255);
     }
 
-    sp_playlist* playlist = sp_playlistcontainer_add_new_playlist(m_playlistContainer->spContainer(), n.toUtf8().constData());
+    sp_playlist* playlist = sp_playlistcontainer_add_new_playlist(m_playlistContainer->spContainer(), trimmed.toUtf8().constData());
     if(playlist == nullptr) {
         return false;
     }
 
-    qint32 i = m_playlistContainer->playlists().indexOf(folder);
-    if(i == -1) {
-        return true;
+    qint32 folderIndex = m_playlistContainer->playlists().indexOf(folder);
+    if(folderIndex == -1) {
+        return false;
     }
 
-    sp_uint64 folderId = sp_playlistcontainer_playlist_folder_id(m_playlistContainer->spContainer(), i);
+    sp_uint64 folderId = sp_playlistcontainer_playlist_folder_id(m_playlistContainer->spContainer(), folderIndex);
     int count = sp_playlistcontainer_num_playlists(m_playlistContainer->spContainer());
 
-    for(qint32 j=i+1 ; j<count ; ++j) {
+    for(qint32 j = folderIndex + 1 ; j < count ; ++j) {
         if(folderId == sp_playlistcontainer_playlist_folder_id(m_playlistContainer->spContainer(), j)) {
-            i = j;
+            folderIndex = j;
         }
     }
 
-    sp_playlistcontainer_move_playlist(m_playlistContainer->spContainer(), count - 1, i, false);
+    sp_playlistcontainer_move_playlist(m_playlistContainer->spContainer(), count - 1, folderIndex, false);
     return true;
 }
 
 bool SpotifyUser::createPlaylistFromTrack(SpotifyTrack* track)
 {
+    if(track == nullptr) {
+        return false;
+    }
 
+    sp_playlist* playlist = sp_playlistcontainer_add_new_playlist(m_playlistContainer->spContainer(), track->name().toUtf8().constData());
+    if(playlist == nullptr) {
+        return false;
+    }
+
+    sp_playlist_add_tracks(playlist, const_cast<sp_track* const*>(&track->spTrack()), 1, 0, SpotifySession::instance()->spSession());
+    return true;
 }
 
-bool SpotifyUser::createPlaylistFromAlbum(SpotifyAlbumBrowse* album)
+bool SpotifyUser::createPlaylistFromAlbum(SpotifyAlbumBrowse* albumBrowse)
 {
+    if(albumBrowse == nullptr || albumBrowse->tracks() == nullptr || albumBrowse->tracks().count() == 0) {
+        return false;
+    }
 
+    QString name = QString("%1 - %2").arg(albumBrowse->album()->artist()->name()).arg(albumBrowse->album()->name());
+    sp_playlist* playlist = sp_playlistcontainer_add_new_playlist(m_playlistContainer->spContainer(), name.toUtf8().constData());
+
+    if(playlist == nullptr) {
+        return false;
+    }
+
+    QVector<sp_track*> tracks;
+    for(int i=0 ; i<albumBrowse->tracks().count() ; ++i) {
+        tracks.append(albumBrowse->tracks().at(i)->spTrack());
+    }
+
+    sp_playlist_add_tracks(playlist, const_cast<sp_track* const*>(tracks.data()), tracks.count(), 0, SpotifySession::instance()->spSession());
+    return true;
 }
 
 void SpotifyUser::removePlaylist(SpotifyPlaylist* playlist)
 {
+    if(playlist == nullptr) {
+        return;
+    }
 
+    qint32 playlistIndex = m_playlistContainer->playlists().indexOf(playlist);
+    if(i == -1) {
+        return;
+    }
+
+    if(playlist->type() == SpotifyPlaylist::Folder) {
+        sp_uint64 folderId = sp_playlistcontainer_playlist_folder_id(m_playlistContainer->spContainer(), playlistIndex);
+        for(qint32 j = playlistIndex + 1 ; j < sp_playlistcontainer_num_playlists(m_playlistContainer->spContainer()) ; ++j) {
+            if(sp_playlistcontainer_playlist_folder_id(m_playlistContainer->spContainer(), j) == folderId) {
+                sp_playlistcontainer_remove_playlist(m_playlistContainer->spContainer(), j);
+                break;
+            }
+        }
+    }
+
+    sp_playlistcontainer_remove_playlist(m_playlistContainer->spContainer(), playlistIndex);
 }
 
 bool SpotifyUser::ownsPlaylist(SpotifyPlaylist* playlist)
 {
-
+    return (playlist != nullptr && playlist->owner() == m_canonicalName);
 }
 
 bool SpotifyUser::canModifyPlaylist(SpotifyPlaylist* playlist)
 {
-
+    return (playlist != nullptr && (playlist->collaborative() || ownsPlaylist(playlist)));
 }
 
 void SpotifyUser::updateData()

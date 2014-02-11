@@ -5,7 +5,7 @@
 #include <QtCore/QCoreApplication>
 #include <libspotify/api.h>
 
-enum EventOffset {
+enum SessionEventOffset {
     ConnectionError = 1,
     MetadataUpdated = 2,
     StreamingStarted = 3,
@@ -31,7 +31,7 @@ class SpotifyConnectionErrorEvent : public QEvent
 public:
 
     SpotifyConnectionErrorEvent(sp_error error, const QString& message) :
-        QEvent(QEvent::Type(QEvent::User + EventOffset::ConnectionError)),
+        QEvent(QEvent::Type(QEvent::User + SessionEventOffset::ConnectionError)),
         m_error(error),
         m_message(message)
     { }
@@ -52,7 +52,7 @@ class SpotifyStreamingStartedEvent : public QEvent
 public:
 
     SpotifyStreamingStartedEvent(qint32 channels, qint32 sampleRate, qint32 volume) :
-        QEvent(QEvent::Type(QEvent::User + EventOffset::StreamingStarted)),
+        QEvent(QEvent::Type(QEvent::User + SessionEventOffset::StreamingStarted)),
         m_channels(channels),
         m_sampleRate(sampleRate),
         m_volume(volume)
@@ -76,7 +76,7 @@ class SpotifyVolumeEvent : public QEvent
 public:
 
     SpotifyVolumeEvent(qint32 volume) :
-        QEvent(QEvent::Type(QEvent::User + EventOffset::Volume)),
+        QEvent(QEvent::Type(QEvent::User + SessionEventOffset::Volume)),
         m_volume(volume)
     { }
 
@@ -94,7 +94,7 @@ class SpotifyTrackProgressEvent : public QEvent
 public:
 
     SpotifyTrackProgressEvent(qint32 delta) :
-        QEvent(QEvent::Type(QEvent::User + EventOffset::TrackProgressed)),
+        QEvent(QEvent::Type(QEvent::User + SessionEventOffset::TrackProgressed)),
         m_delta(delta)
     { }
 
@@ -112,7 +112,7 @@ class SpotifyRequestImageEvent : public QEvent
 public:
 
     SpotifyRequestImageEvent(const QString& id) :
-        QEvent(QEvent::Type(QEvent::User + EventOffset::RequestImage)),
+        QEvent(QEvent::Type(QEvent::User + SessionEventOffset::RequestImage)),
         m_id(id)
     { }
 
@@ -130,7 +130,7 @@ class SpotifyReceiveImageEvent : public QEvent
 public:
 
     SpotifyReceiveImageEvent(sp_image* image) :
-        QEvent(QEvent::Type(QEvent::User + EventOffset::ReceiveImage)),
+        QEvent(QEvent::Type(QEvent::User + SessionEventOffset::ReceiveImage)),
         m_image(image)
     { }
 
@@ -148,7 +148,7 @@ class SpotifyOfflineErrorEvent : public QEvent
 public:
 
     SpotifyOfflineErrorEvent(sp_error error, const QString& message) :
-        QEvent(QEvent::Type(QEvent::User + EventOffset::OfflineError)),
+        QEvent(QEvent::Type(QEvent::User + SessionEventOffset::OfflineError)),
         m_error(error),
         m_message(message)
     { }
