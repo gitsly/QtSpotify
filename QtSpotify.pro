@@ -8,8 +8,12 @@ TEMPLATE = lib
 DEFINES += QTSPOTIFY_LIBRARY
 
 SOURCES += \
+    src/spotifytrack.cpp
 
 HEADERS += \
+    include/QtSpotify/qtspotify_global.h \
+    include/QtSpotify/spotifytrack.h \
+    include/QtSpotify/spotifysession.h
 
 INCLUDEPATH += include
 
