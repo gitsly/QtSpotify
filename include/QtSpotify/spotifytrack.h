@@ -1,7 +1,7 @@
 /*! \file */
 
-#ifndef SPOTIFYTRACK_H
-#define SPOTIFYTRACK_H
+#ifndef QTSPOTIFY_SPOTIFYTRACK_H_
+#define QTSPOTIFY_SPOTIFYTRACK_H_
 
 #include <QtSpotify/qtspotify_global.h>
 #include <QtCore/QObject>
@@ -32,6 +32,8 @@ enum class TrackOfflineStatus {
 class QTSPOTIFYSHARED_EXPORT SpotifyTrack : public QObject
 {
 
+    Q_OBJECT
+
     Q_ENUMS(TrackOfflineStatus)
 
 public:
@@ -49,6 +51,12 @@ public:
      * \return True if the track is available, false otherwise
      */
     bool available() const;
+
+    /*!
+     * \brief Returns true if the track is loaded by Libspotify
+     * \return True if the track is loaded, false otherwise
+     */
+    bool loaded() const;
 
     /*!
      * \brief Returns the current offline status for the track
@@ -134,6 +142,12 @@ signals:
     void availabilityChanged(bool available);
 
     /*!
+     * \brief Emitted whenever the loaded status of the track changes
+     * \param loaded True if the track is loaded, false otherwise
+     */
+    void loadedChanged(bool loaded);
+
+    /*!
      * \brief Emitted whenever the metadata of the track is updated
      */
     void trackDataChanged();
@@ -152,6 +166,9 @@ private:
 
     qint32 m_disc;
     qint32 m_discIndex;
+
+    bool m_available;
+    bool m_loaded;
 
     sp_track* m_spTrack;
 

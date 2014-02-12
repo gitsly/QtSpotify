@@ -3,6 +3,7 @@
 
 #include <QtSpotify/qtspotify_global.h>
 #include <QtCore/QObject>
+#include <QtCore/QMutex>
 
 #include <libspotify/api.h>
 
@@ -26,7 +27,10 @@ private:
     SpotifySession();
     Q_DISABLE_COPY(SpotifySession)
 
+    void init();
+
     sp_session* m_spSession;
+    static SpotifySession* m_instance;
 
 };
 
