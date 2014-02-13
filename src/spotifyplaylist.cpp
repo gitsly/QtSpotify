@@ -5,6 +5,7 @@
 
 #include <QtCore/QVector>
 
+#include "playlistcallbacks.h"
 #include "../playlistevents.h"
 
 QHash<sp_playlist*, SpotifyPlaylist*> SpotifyPlaylist::playlistObjects = QHash<sp_playlist*, SpotifyPlaylist*>();
@@ -15,6 +16,17 @@ SpotifyPlaylist::SpotifyPlaylist(sp_playlist* playlist)
     m_spPlaylist = playlist;
 
     connect(SpotifySession::instance(), &SpotifySession::metadataUpdated, this, &SpotifyPlaylist::updateData);
+
+    m_callbacks = new sp_playlist_callbacks();
+    m_callbacks->description_changed = descriptionChangedCallback;
+    m_callbacks->image_changed = imageChangedCallback;
+    m_callbacks->playlist_metadata_updated = playlistMetadataChangedCallback;
+    m_callbacks->playlist_renamed = playlistRenamedCallback;
+    m_callbacks->playlist_state_changed = playlistStateChangedCallback;
+    m_callbacks->playlist_update_in_progress = playlistUpdateInProgressCallback;
+    m_callbacks->subscribers_changed = subscribersChangedCallback;
+    m_callbacks->tracks_added = tracksAddedCallback;
+    m_callbacks->tracks_moved = track
 }
 
 SpotifyPlaylist::~SpotifyPlaylist()
@@ -65,6 +77,11 @@ PlaylistType SpotifyPlaylist::type() const
 QList<SpotifyTrack*> SpotifyPlaylist::tracks() const
 {
     return m_tracks;
+}
+
+SpotifyUser* SpotifyPlaylist::owner() const
+{
+    return m_owner;
 }
 
 sp_playlist* SpotifyPlaylist::native() const
@@ -194,43 +211,50 @@ bool SpotifyPlaylist::event(QEvent* e)
         return true;
     }
     else if(e->type() == QEvent::User + 3) {
+        //Tracks moved event
+        PlaylistTracksMovedEvent* ev = static_cast<PlaylistTracksMovedEvent*>(e);
+        onTracksMoved(ev->indices(), ev->position());
+        e->accept();
+        return true;
+    }
+    else if(e->type() == QEvent::User + 4) {
         //Playlist renamed event
         m_name = QString::fromUtf8(sp_playlist_name(m_spPlaylist));
         e->accept();
         return true;
     }
-    else if(e->type() == QEvent::User + 4) {
+    else if(e->type() == QEvent::User + 5) {
         //Playlist state changed event
     }
-    else if(e->type() == QEvent::User + 5) {
+    else if(e->type() == QEvent::User + 6) {
         //Playlist updated in progress event
     }
-    else if(e->type() == QEvent::User + 6) {
+    else if(e->type() == QEvent::User + 7) {
         //Plylist metadata changed event
         updateData();
         e->accept();
         return true;
     }
-    else if(e->type() == QEvent::User + 7) {
+    else if(e->type() == QEvent::User + 8) {
         //Track created changed event
     }
-    else if(e->type() == QEvent::User + 8) {
+    else if(e->type() == QEvent::User + 9) {
         //Track seen changed event
         PlaylistTrackSeenChangedEvent* ev = static_cast<PlaylistTrackSeenChangedEvent*>(e);
         //m_tracks.at(ev->position())->setSeen(ev->seen());
     }
-    else if(e->type() == QEvent::User + 9) {
+    else if(e->type() == QEvent::User + 10) {
         //Playlist description changed event
         PlaylistDescriptionChangedEvent* ev = static_cast<PlaylistDescriptionChangedEvent*>(e);
         m_description = ev->description();
     }
-    else if(e->type() == QEvent::User + 10) {
+    else if(e->type() == QEvent::User + 11) {
         //Playlist image changed event
     }
-    else if(e->type() == QEvent::User + 11) {
+    else if(e->type() == QEvent::User + 12) {
         //Track message changed event
     }
-    else if(e->type() == QEvent::User + 12) {
+    else if(e->type() == QEvent::User + 13) {
         //Playlist subscribers changed
         PlaylistSubscribersChangedEvent* ev = static_cast<PlaylistSubscribersChangedEvent*>(e);
         m_subscribers = ev->subscribers();
@@ -242,6 +266,64 @@ bool SpotifyPlaylist::event(QEvent* e)
 
 void SpotifyPlaylist::updateData()
 {
+    bool updated = false;
+
+    QString name = QString::fromUtf8(sp_playlist_name(m_spPlaylist));
+    QString description = QString::fromUtf8(sp_playlist_get_description(m_spPlaylist));
+    bool collaborative = sp_playlist_is_collaborative(m_spPlaylist);
+    PlaylistOfflineStatus offlineStatus = PlaylistOfflineStatus(sp_playlist_get_offline_status(SpotifySession::instance()->native(), m_spPlaylist));
+
+    if(m_subscribers.isEmpty()) {
+
+        if(m_spSubscribers != nullptr) {
+            sp_playlist_subscribers_free(m_spSubscribers);
+        }
+        m_spSubscribers = sp_playlist_subscribers(m_spPlaylist);
+
+        for(qint32 i=0 ; i<m_spSubscribers->count ; ++i) {
+            m_subscribers.append(QString::fromUtf8(m_spSubscribers->subscribers[i]));
+        }
+
+        updated = true;
+    }
+
+    if(m_tracks.isEmpty()) {
+        qint32 numTracks = sp_playlist_num_tracks(m_spPlaylist);
+        for(qint32 i=0 ; i<numTracks ; ++i) {
+            SpotifyTrack* track = new SpotifyTrack(sp_playlist_track(m_spPlaylist, i));
+            if(track != nullptr) {
+                m_tracks.append(track);
+            }
+        }
+        updated = true;
+    }
+
+    auto updateType = [=]() {
+
+        qint32 index = m_owner->playlistContainer()->playlists().indexOf(this);
+        if(index > -1) {
+            sp_playlistcontainer_playlist_type(m_owner->playlistContainer()->native(), index);
+        }
+    };
+
+    if(m_owner == nullptr) {
+        SpotifyUser* owner = sp_playlist_owner(m_spPlaylist);
+        if(owner != nullptr) {
+            m_owner = owner;
+        }
+
+        updateType();
+
+        updated = true;
+    }
+    else {
+        updateType();
+    }
+
+    updated |= exchange(m_name, name);
+    updated |= exchange(m_description, description);
+    updated |= exchange(m_collaborative, collaborative);
+    updated |= exchange(m_offlineStatus, offlineStatus);
 
 }
 
@@ -251,6 +333,11 @@ void SpotifyPlaylist::onTracksAdded(QList<SpotifyTrack*> tracks, qint32 position
 }
 
 void SpotifyPlaylist::onTracksRemoved(QList<qint32> indices)
+{
+
+}
+
+void SpotifyPlaylist::onTracksMoved(QList<qint32> indices, qint32 position)
 {
 
 }

@@ -37,6 +37,19 @@ static void SP_CALLCONV tracksRemovedCallback(sp_playlist* playlist, const int* 
 }
 
 /*!
+ * \brief Called when one or more tracks have been moved within a playlist
+ * \param playlist The affected playlist
+ * \param tracks Array of position representing the tracks that were moved
+ * \param numTracks Number of entries in tracks
+ * \param newPosition New position in the playlist for the first track
+ * \param userData Userdata passed to sp_playlist_add_callbacks()
+ */
+static void SP_CALLCONV tracksMovedCallback(sp_playlist* playlist, const int* tracks, int numTracks, int newPosition, void* userData)
+{
+
+}
+
+/*!
  * \brief Called when a playlist has been renamed
  * \param playlist The affected playlist
  * \param userData Userdata passed to sp_playlist_add_callbacks()
@@ -78,7 +91,7 @@ static void SP_CALLCONV playlistUpdateInProgressCallback(sp_playlist* playlist, 
 static void SP_CALLCONV playlistMetadataChangedCallback(sp_playlist* playlist, void* userData)
 {
     Q_UNUSED(userData)
-    QCoreApplication::postEvent(SpotifyPlaylist::playlistObjects.value(playlist), new QEvent(QEvent::Type(QEvent::User + 6)));
+    QCoreApplication::postEvent(SpotifyPlaylist::playlistObjects.value(playlist), new QEvent(QEvent::Type(QEvent::User + 7)));
 }
 
 /*!

@@ -11,6 +11,7 @@
 struct sp_playlist;
 class SpotifyTrack;
 class SpotifyAlbumBrowse;
+class SpotifyUser;
 
 enum class PlaylistType {
     Playlist = SP_PLAYLIST_TYPE_PLAYLIST,
@@ -93,6 +94,12 @@ public:
      * \return A list of tracks currently in the playlist
      */
     QList<SpotifyTrack*> tracks() const;
+
+    /*!
+     * \brief Returns the owner of the playlist
+     * \return A SpotifyUser pointer
+     */
+    SpotifyUser* owner() const;
 
     /*!
      * \brief Returns the Libspotify native representation of the playlist
@@ -186,6 +193,7 @@ private slots:
 
     void onTracksAdded(QList<SpotifyTrack*> tracks, qint32 position);
     void onTracksRemoved(QList<qint32> indices);
+    void onTracksMoved(QList<qint32> indices, qint32 position);
 
 private:
 
@@ -196,10 +204,14 @@ private:
     bool m_collaborative;
     QStringList m_subscribers;
 
+    SpotifyUser* m_owner;
+
     PlaylistOfflineStatus m_offlineStatus;
     PlaylistType m_type;
 
+    sp_subscribers* m_spSubscribers;
     sp_playlist* m_spPlaylist;
+    sp_playlist_callbacks* m_callbacks;
 };
 
 #endif

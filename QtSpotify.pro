@@ -24,7 +24,8 @@ HEADERS += \
     include/QtSpotify/spotifyplaylist.h \
     playlistcallbacks.h \
     playlistevents.h \
-    include/QtSpotify/spotifyuser.h
+    include/QtSpotify/spotifyuser.h \
+    include/QtSpotify/spotifyplaylistcontainer.h
 
 INCLUDEPATH += include
 
