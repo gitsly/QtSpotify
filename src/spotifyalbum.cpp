@@ -64,7 +64,6 @@ void SpotifyAlbum::updateData()
 
     bool loaded = sp_album_is_loaded(m_spAlbum);
     if(loaded != m_loaded) {
-        m_loaded = loaded;
         emit loadedChanged(m_loaded);
     }
 
@@ -85,23 +84,19 @@ void SpotifyAlbum::updateData()
         }
     }
 
-    if(m_available != available) {
-        m_available = available;
+    if(exchange(m_available, available)) {
         updated = true;
     }
 
-    if(m_name != name) {
-        m_name = name;
+    if(exchange(m_name, name)) {
         updated = true;
     }
 
-    if(m_year != year) {
-        m_year = year;
+    if(exchange(m_year, year)) {
         updated = true;
     }
 
-    if(m_type != type) {
-        m_type = type;
+    if(exchange(m_type, type)) {
         updated = true;
     }
 

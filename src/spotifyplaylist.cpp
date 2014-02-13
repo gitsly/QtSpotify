@@ -1,8 +1,11 @@
 #include <QtSpotify/spotifyplaylist.h>
 #include <QtSpotify/spotifysession.h>
 #include <QtSpotify/spotifytrack.h>
+#include <QtSpotify/spotifyuser.h>
 
 #include <QtCore/QVector>
+
+#include "../playlistevents.h"
 
 QHash<sp_playlist*, SpotifyPlaylist*> SpotifyPlaylist::playlistObjects = QHash<sp_playlist*, SpotifyPlaylist*>();
 
@@ -174,7 +177,80 @@ void SpotifyPlaylist::createFromAlbum(SpotifyAlbumBrowse* album)
 
 }
 
+bool SpotifyPlaylist::event(QEvent* e)
+{
+    if(e->type() == QEvent::User + 1) {
+        //Tracks added event
+        PlaylistTracksAddedEvent* ev = static_cast<PlaylistTracksAddedEvent*>(e);
+        onTracksAdded(ev->tracks(), ev->position());
+        e->accept();
+        return true;
+    }
+    else if(e->type() == QEvent::User + 2) {
+        //Tracks removed event
+        PlaylistTracksRemovedEvent* ev = static_cast<PlaylistTracksRemovedEvent*>(e);
+        onTracksRemoved(ev->indices());
+        e->accept();
+        return true;
+    }
+    else if(e->type() == QEvent::User + 3) {
+        //Playlist renamed event
+        m_name = QString::fromUtf8(sp_playlist_name(m_spPlaylist));
+        e->accept();
+        return true;
+    }
+    else if(e->type() == QEvent::User + 4) {
+        //Playlist state changed event
+    }
+    else if(e->type() == QEvent::User + 5) {
+        //Playlist updated in progress event
+    }
+    else if(e->type() == QEvent::User + 6) {
+        //Plylist metadata changed event
+        updateData();
+        e->accept();
+        return true;
+    }
+    else if(e->type() == QEvent::User + 7) {
+        //Track created changed event
+    }
+    else if(e->type() == QEvent::User + 8) {
+        //Track seen changed event
+        PlaylistTrackSeenChangedEvent* ev = static_cast<PlaylistTrackSeenChangedEvent*>(e);
+        //m_tracks.at(ev->position())->setSeen(ev->seen());
+    }
+    else if(e->type() == QEvent::User + 9) {
+        //Playlist description changed event
+        PlaylistDescriptionChangedEvent* ev = static_cast<PlaylistDescriptionChangedEvent*>(e);
+        m_description = ev->description();
+    }
+    else if(e->type() == QEvent::User + 10) {
+        //Playlist image changed event
+    }
+    else if(e->type() == QEvent::User + 11) {
+        //Track message changed event
+    }
+    else if(e->type() == QEvent::User + 12) {
+        //Playlist subscribers changed
+        PlaylistSubscribersChangedEvent* ev = static_cast<PlaylistSubscribersChangedEvent*>(e);
+        m_subscribers = ev->subscribers();
+    }
+
+    QObject::event(e);
+    return false;
+}
+
 void SpotifyPlaylist::updateData()
+{
+
+}
+
+void SpotifyPlaylist::onTracksAdded(QList<SpotifyTrack*> tracks, qint32 position)
+{
+
+}
+
+void SpotifyPlaylist::onTracksRemoved(QList<qint32> indices)
 {
 
 }

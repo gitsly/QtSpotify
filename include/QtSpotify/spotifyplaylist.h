@@ -5,6 +5,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
+#include <QtCore/QEvent>
 #include <libspotify/api.h>
 
 struct sp_playlist;
@@ -167,9 +168,24 @@ public:
      */
     static void createFromAlbum(SpotifyAlbumBrowse* album);
 
+protected:
+
+    /*!
+     * \brief This function is not to be called directly, it catches events sent to the playlist
+     * \return True if the event was handled by the playlist, false otherwise
+     */
+    bool event(QEvent *);
+
+signals:
+
+    void trackDataChanged();
+
 private slots:
 
     void updateData();
+
+    void onTracksAdded(QList<SpotifyTrack*> tracks, qint32 position);
+    void onTracksRemoved(QList<qint32> indices);
 
 private:
 

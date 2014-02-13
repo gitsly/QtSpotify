@@ -41,8 +41,7 @@ void SpotifyArtist::updateData()
     bool updated = false;
 
     bool loaded = sp_artist_is_loaded(m_spArtist);
-    if(m_loaded != loaded) {
-        m_loaded = loaded;
+    if(exchange(m_loaded, loaded)) {
         emit loadedChanged(m_loaded);
         updated = true;
     }
@@ -61,8 +60,7 @@ void SpotifyArtist::updateData()
         }
     }
 
-    if(m_name != name) {
-        m_name = name;
+    if(exchange(m_name, name)) {
         updated = true;
     }
 

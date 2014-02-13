@@ -100,15 +100,13 @@ void SpotifyTrack::updateData()
     bool updated = false;
 
     bool loaded = sp_track_is_loaded(m_spTrack);
-    if(m_loaded != loaded) {
-        m_loaded = loaded;
+    if(exchange(m_loaded, loaded)) {
         emit loadedChanged(m_loaded);
         updated = true;
     }
 
     bool available = sp_track_get_availability(SpotifySession::instance()->native(), m_spTrack) == SP_TRACK_AVAILABILITY_AVAILABLE;
-    if(m_available != available) {
-        m_available = available;
+    if(exchange(m_available, available)) {
         emit availabilityChanged(m_available);
         updated = true;
     }
@@ -127,28 +125,23 @@ void SpotifyTrack::updateData()
         updated = true;
     }
 
-    if(m_name != name) {
-        m_name = name;
+    if(exchange(m_name, name)) {
         updated = true;
     }
 
-    if(m_popularity != popularity) {
-        m_popularity = popularity;
+    if(exchange(m_popularity, popularity)) {
         updated = true;
     }
 
-    if(m_duration != duration) {
-        m_duration = duration;
+    if(exchange(m_duration, duration)) {
         updated = true;
     }
 
-    if(m_disc != disc) {
-        m_disc = disc;
+    if(exchange(m_disc, disc)) {
         updated = true;
     }
 
-    if(m_discIndex = discIndex) {
-        m_discIndex = discIndex;
+    if(exchange(m_discIndex, discIndex)) {
         updated = true;
     }
 

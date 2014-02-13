@@ -12,7 +12,8 @@ SOURCES += \
     src/spotifyalbum.cpp \
     src/spotifyartist.cpp \
     src/spotifysession.cpp \
-    src/spotifyplaylist.cpp
+    src/spotifyplaylist.cpp \
+    src/spotifyuser.cpp
 
 HEADERS += \
     include/QtSpotify/qtspotify_global.h \
@@ -22,7 +23,8 @@ HEADERS += \
     include/QtSpotify/spotifyartist.h \
     include/QtSpotify/spotifyplaylist.h \
     playlistcallbacks.h \
-    playlistevents.h
+    playlistevents.h \
+    include/QtSpotify/spotifyuser.h
 
 INCLUDEPATH += include
 

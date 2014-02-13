@@ -8,6 +8,7 @@
 #include <QtCore/QDateTime>
 #include <libspotify/api.h>
 
+#include <QtSpotify/spotifyuser.h>
 #include <QtSpotify/spotifytrack.h>
 
 class PlaylistTracksAddedEvent : public QEvent
@@ -103,7 +104,7 @@ class PlaylistTrackSeenChangedEvent : public QEvent
 public:
 
     PlaylistTrackSeenChangedEvent(int position, bool seen) :
-        QEvent(QEvent::Type(QEven::User + 8)),
+        QEvent(QEvent::Type(QEvent::User + 8)),
         m_position(position),
         m_seen(seen)
     { }
