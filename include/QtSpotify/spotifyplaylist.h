@@ -3,7 +3,8 @@
 
 #include <QtSpotify/qtspotify_global.h>
 #include <QtCore/QObject>
-#include <QHash>
+#include <QtCore/QHash>
+#include <QtCore/QStringList>
 #include <libspotify/api.h>
 
 struct sp_playlist;
@@ -93,6 +94,12 @@ public:
     QList<SpotifyTrack*> tracks() const;
 
     /*!
+     * \brief Returns the Libspotify native representation of the playlist
+     * \return The native representation
+     */
+    sp_playlist* native() const;
+
+    /*!
      * \brief Sets the name of the playlist
      * \param name The new name of the playlist
      */
@@ -166,9 +173,17 @@ private slots:
 
 private:
 
+    QString m_name;
+    QString m_description;
     QList<SpotifyTrack*> m_tracks;
 
+    bool m_collaborative;
+    QStringList m_subscribers;
 
+    PlaylistOfflineStatus m_offlineStatus;
+    PlaylistType m_type;
+
+    sp_playlist* m_spPlaylist;
 };
 
 #endif
