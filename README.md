@@ -13,7 +13,20 @@ Full QML usability is also implemented.
 * Libspotify (https://developer.spotify.com/technologies/libspotify/#download)
 
 
-#### Platform independency
+### Platform independency
 Since Qt is platform independent, and libspotify is available for many different platforms and
 architectures, it should theoretically be possible to compile this on any machine that
 libspotify supports (Windows (Phone), Linux, iOS, Android, ARM (v5, v6, v7), Mac OS X)
+* Windows
+* Windows Phone
+* Linux
+* iOS
+* Android
+* ARM (v5, v6, v7)
+* Mac OS X
+
+
+##### Current build tests
+* Qt 5.2.1 MSVC 2012
+* Qt 5.2.0 MSVC 2012
+
