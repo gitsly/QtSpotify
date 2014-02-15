@@ -3,6 +3,8 @@
 
 #include <QtSpotify/qtspotify_global.h>
 #include <QtCore/QList>
+#include <QtCore/QObject>
+#include <QtCore/QHash>
 #include <libspotify/api.h>
 
 class SpotifyPlaylist;
@@ -18,15 +20,31 @@ public:
     SpotifyPlaylistContainer(sp_playlistcontainer* playlistContainer);
     virtual ~SpotifyPlaylistContainer();
 
+    static QHash<sp_playlistcontainer*, SpotifyPlaylistContainer*> containerObjects;
+
     /*!
      * \brief loaded
      * \return
      */
     bool loaded() const;
 
+    /*!
+     * \brief playlists
+     * \return
+     */
     QList<SpotifyPlaylist*> playlists() const;
 
-    SpotifyUser* owner() const;
+    /*!
+     * \brief owner
+     * \return
+     */
+    //SpotifyUser* owner() const;
+
+    /*!
+     * \brief native
+     * \return
+     */
+    sp_playlistcontainer* native() const;
 
 
 
@@ -38,7 +56,11 @@ public:
 
 private:
 
+
     QList<SpotifyPlaylist*> m_playlists;
+
+    sp_playlistcontainer* m_spContainer;
+    sp_playlistcontainer_callbacks* m_callbacks;
 
 };
 

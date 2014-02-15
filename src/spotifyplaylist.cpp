@@ -2,11 +2,12 @@
 #include <QtSpotify/spotifysession.h>
 #include <QtSpotify/spotifytrack.h>
 #include <QtSpotify/spotifyuser.h>
+#include <QtSpotify/spotifyplaylistcontainer.h>
+
+#include <QtSpotify/playlistcallbacks.h>
+#include <QtSpotify/playlistevents.h>
 
 #include <QtCore/QVector>
-
-#include "playlistcallbacks.h"
-#include "../playlistevents.h"
 
 QHash<sp_playlist*, SpotifyPlaylist*> SpotifyPlaylist::playlistObjects = QHash<sp_playlist*, SpotifyPlaylist*>();
 
@@ -26,7 +27,11 @@ SpotifyPlaylist::SpotifyPlaylist(sp_playlist* playlist)
     m_callbacks->playlist_update_in_progress = playlistUpdateInProgressCallback;
     m_callbacks->subscribers_changed = subscribersChangedCallback;
     m_callbacks->tracks_added = tracksAddedCallback;
-    m_callbacks->tracks_moved = track
+    m_callbacks->tracks_moved = tracksMovedCallback;
+    m_callbacks->tracks_removed = tracksRemovedCallback;
+    m_callbacks->track_created_changed = trackCreatedChangedCallback;
+    m_callbacks->track_message_changed = trackMessageChangedCallback;
+    m_callbacks->track_seen_changed = trackSeenChangedCallback;
 }
 
 SpotifyPlaylist::~SpotifyPlaylist()
@@ -307,9 +312,9 @@ void SpotifyPlaylist::updateData()
     };
 
     if(m_owner == nullptr) {
-        SpotifyUser* owner = sp_playlist_owner(m_spPlaylist);
+        sp_user* owner = sp_playlist_owner(m_spPlaylist);
         if(owner != nullptr) {
-            m_owner = owner;
+            m_owner = new SpotifyUser(owner);
         }
 
         updateType();

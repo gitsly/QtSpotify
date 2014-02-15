@@ -4,7 +4,8 @@ SpotifySession* SpotifySession::m_instance = nullptr;
 
 SpotifySession::SpotifySession() :
     QObject(nullptr),
-    m_spSession(nullptr)
+    m_spSession(nullptr),
+    m_user(nullptr)
 {
 
 }
@@ -32,4 +33,9 @@ void SpotifySession::init()
 sp_session* SpotifySession::native() const
 {
     return m_spSession;
+}
+
+SpotifyUser* SpotifySession::user() const
+{
+    return m_user;
 }

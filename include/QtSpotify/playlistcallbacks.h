@@ -115,7 +115,7 @@ static void SP_CALLCONV trackCreatedChangedCallback(sp_playlist* playlist, int p
  * \param seen Set if entry is marked as seen
  * \param userData Userdata passed to sp_playlist_add_callbacks()
  */
-static void SP_CALLCONV trackSeenChanged(sp_playlist* playlist, int position, bool seen, void* userData)
+static void SP_CALLCONV trackSeenChangedCallback(sp_playlist* playlist, int position, bool seen, void* userData)
 {
     Q_UNUSED(userData)
     QCoreApplication::postEvent(SpotifyPlaylist::playlistObjects.value(playlist), new PlaylistTrackSeenChangedEvent(position, seen));

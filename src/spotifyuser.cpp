@@ -1,5 +1,7 @@
 #include <QtSpotify/spotifyuser.h>
 #include <QtSpotify/spotifysession.h>
+#include <QtSpotify/spotifyplaylistcontainer.h>
+#include <QtSpotify/spotifyplaylist.h>
 
 SpotifyUser::SpotifyUser(sp_user* user) :
     QObject(nullptr),
@@ -26,6 +28,55 @@ QString SpotifyUser::displayName() const
 QString SpotifyUser::canonicalName() const
 {
     return m_canonicalName;
+}
+
+SpotifyPlaylistContainer* SpotifyUser::playlistContainer()
+{
+    if(m_playlistContainer == nullptr) {
+        sp_playlistcontainer* pc;
+        if(SpotifySession::instance()->user() == this) {
+            pc = sp_session_playlistcontainer(SpotifySession::instance()->native());
+            sp_playlistcontainer_add_ref(pc);
+        }
+        else {
+            pc = sp_session_publishedcontainer_for_user_create(SpotifySession::instance()->native(), m_canonicalName.toUtf8().constData());
+        }
+
+        m_playlistContainer = new SpotifyPlaylistContainer(pc);
+    }
+
+    return m_playlistContainer;
+}
+
+SpotifyPlaylist* SpotifyUser::starredList()
+{
+    if(m_starredList == nullptr) {
+        sp_playlist* playlist;
+        if(SpotifySession::instance()->user() == this) {
+            playlist = sp_session_starred_create(SpotifySession::instance()->native());
+        }
+        else {
+            playlist = sp_session_starred_for_user_create(SpotifySession::instance()->native(), m_canonicalName.toUtf8().constData());
+        }
+
+        m_starredList = new SpotifyPlaylist(playlist);
+    }
+
+    return m_starredList;
+}
+
+SpotifyPlaylist* SpotifyUser::inbox()
+{
+    if(SpotifySession::instance()->user() != this) {
+        return nullptr;
+    }
+
+    if(m_inbox == nullptr) {
+        sp_playlist* inbox = sp_session_inbox_create(SpotifySession::instance()->native());
+        m_inbox = new SpotifyPlaylist(inbox);
+    }
+
+    return m_inbox;
 }
 
 bool SpotifyUser::loaded() const

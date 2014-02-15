@@ -7,6 +7,8 @@
 
 #include <libspotify/api.h>
 
+class SpotifyUser;
+
 class QTSPOTIFYSHARED_EXPORT SpotifySession : public QObject
 {
 
@@ -17,6 +19,8 @@ public:
     static SpotifySession* instance();
 
     sp_session* native() const;
+
+    SpotifyUser* user() const;
 
 signals:
 
@@ -31,6 +35,8 @@ private:
 
     sp_session* m_spSession;
     static SpotifySession* m_instance;
+
+    SpotifyUser* m_user;
 
 };
 

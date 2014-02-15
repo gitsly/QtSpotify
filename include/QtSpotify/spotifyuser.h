@@ -6,6 +6,9 @@
 #include <QtCore/QObject>
 #include <libspotify/api.h>
 
+class SpotifyPlaylistContainer;
+class SpotifyPlaylist;
+
 enum class UserRelation {
     Unknown = SP_RELATION_TYPE_UNKNOWN,
     None = SP_RELATION_TYPE_NONE,
@@ -34,11 +37,34 @@ public:
     QString canonicalName() const;
 
     /*!
+     * \brief Returns the Playlist Container for the user.
+     * \return A Playlist Container
+     */
+    SpotifyPlaylistContainer* playlistContainer();
+
+    /*!
+     * \brief Returns the users starred playlist
+     * \return A playlist
+     */
+    SpotifyPlaylist* starredList();
+
+    /*!
+     * \brief Returns the users inbox playlist
+     * \return A playlist
+     * \note This function is only valid if the user is the logged in user
+     */
+    SpotifyPlaylist* inbox();
+
+    /*!
      * \brief Returns true if the user is loaded by libspotify
      * \return True if the user is loaded, false otherwise
      */
     bool loaded() const;
 
+    /*!
+     * \brief Returns the native Libspotify representation of the user
+     * \return The libspotify native representation of the user
+     */
     sp_user* native() const;
 
     //Not used in libspotify *sadface*
@@ -60,6 +86,10 @@ private:
 
     QString m_displayName;
     QString m_canonicalName;
+
+    SpotifyPlaylistContainer* m_playlistContainer;
+    SpotifyPlaylist* m_starredList;
+    SpotifyPlaylist* m_inbox;
 
     bool m_loaded;
 
