@@ -44,7 +44,8 @@ HEADERS += \
     include/QtSpotify/Core/search.h \
     include/QtSpotify/Core/session.h \
     include/QtSpotify/Core/track.h \
-    include/QtSpotify/Core/user.h
+    include/QtSpotify/Core/user.h \
+    include/QtSpotify/Core/playlistcontainercallbacks.h
 
 INCLUDEPATH += include
 
