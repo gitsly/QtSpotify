@@ -46,7 +46,10 @@ HEADERS += \
     include/QtSpotify/Core/track.h \
     include/QtSpotify/Core/user.h \
     include/QtSpotify/Core/playlistcontainercallbacks.h \
-    include/QtSpotify/Core/searchcallbacks.h
+    include/QtSpotify/Core/searchcallbacks.h \
+    include/QtSpotify/Core/playlistcallbacks.h \
+    include/QtSpotify/Core/albumbrowsecallbacks.h \
+    include/QtSpotify/Core/artistbrowsecallbacks.h
 
 INCLUDEPATH += include
 

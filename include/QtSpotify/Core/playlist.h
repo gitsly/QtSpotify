@@ -4,6 +4,8 @@
 #include <QtSpotify/Core/global.h>
 #include <QtCore/QObject>
 #include <QtCore/QList>
+#include <QtCore/QHash>
+#include <QtCore/QEvent>
 #include <libspotify/api.h>
 
 class Track;
@@ -33,6 +35,8 @@ class QTS_EXPORT Playlist : public QObject
 
 public:
 
+    static QHash<sp_playlist*, Playlist*> playlistObjects;
+
     explicit Playlist(sp_playlist* playlist);
     virtual ~Playlist();
 
@@ -60,6 +64,10 @@ public:
     void remove(Track* track);
     void move(Track* track, qint32 newPosition);
 
+protected:
+
+    bool event(QEvent*);
+
 private slots:
 
     void onMetadataUpdated();
@@ -67,10 +75,15 @@ private slots:
 signals:
 
     void metadataChanged();
+    void nameChanged(const QString& name);
+    void descriptionChanged(const QString& description);
 
 private:
 
+    qint32 getTrackIndex(sp_track* track);
+
     QList<Track*> m_tracks;
+
     QString m_name;
     User* m_owner;
     bool m_collaborative;
@@ -79,6 +92,7 @@ private:
     PlaylistOfflineStatus m_offlineStatus;
 
     sp_playlist* m_spPlaylist;
+    sp_playlist_callbacks* m_callbacks;
 
 };
 #endif

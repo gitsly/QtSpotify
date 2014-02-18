@@ -25,17 +25,23 @@ Search::Search() :
 
 Search::~Search()
 {
+    qDeleteAll(m_tracksResult);
+    qDeleteAll(m_artistsResult);
+    qDeleteAll(m_albumsResult);
 
+    m_tracksResult.clear();
 }
 
 QString Search::query() const
 {
-
+    return m_query;
 }
 
 void Search::setQuery(const QString& query)
 {
-
+    if(exchange(m_query, query)) {
+        emit queryChanged(m_query);
+    }
 }
 
 QList<Track*> Search::trackResults() const
@@ -98,7 +104,7 @@ void Search::loadResults()
     }
 
     for(qint32 i=0 ; i<numAlbums ; ++i) {
-        Album* album = new Track(sp_search_album(m_spSearch, i));
+        Album* album = new Album(sp_search_album(m_spSearch, i));
         if(album != nullptr) {
             m_albumsResult.append(album);
         }

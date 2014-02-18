@@ -2,6 +2,8 @@
 #include <QtSpotify/Session>
 #include <QtSpotify/Playlist>
 #include <QtSpotify/User>
+#include <QtSpotify/Album>
+#include <QtSpotify/Artist>
 
 Track::Track(sp_track *track, Playlist* playlist) :
     QObject(nullptr),

@@ -27,6 +27,7 @@ PlaylistContainer::PlaylistContainer(sp_playlistcontainer* pc) :
 
 PlaylistContainer::~PlaylistContainer()
 {
+    sp_playlistcontainer_remove_callbacks(m_spContainer, m_callbacks, nullptr);
     sp_playlistcontainer_release(m_spContainer);
 }
 
@@ -80,7 +81,7 @@ bool PlaylistContainer::event(QEvent* e)
     if(e->type() == QEvent::User) {
         //Playlist added event
         PlaylistAddedEvent* ev = static_cast<PlaylistAddedEvent*>(e);
-        qint32 plIndex = m_playlists.indexOf(ev->playlist());
+        qint32 plIndex = this->indexOf(ev->playlist());
         if(plIndex == ev->position()) {
             //Playlist was added successfully
         }
@@ -93,7 +94,7 @@ bool PlaylistContainer::event(QEvent* e)
     else if(e->type() == QEvent::User + 1) {
         //Playlist removed event
         PlaylistRemovedEvent* ev = static_cast<PlaylistRemovedEvent*>(e);
-        qint32 plIndex = m_playlists.indexOf(ev->playlist());
+        qint32 plIndex = this->indexOf(ev->playlist());
         if(plIndex == -1) {
             //Playlist was removed successfully
         }
@@ -106,7 +107,7 @@ bool PlaylistContainer::event(QEvent* e)
     else if(e->type() == QEvent::User + 2) {
         //Playlist moved event
         PlaylistMovedEvent* ev = static_cast<PlaylistMovedEvent*>(e);
-        qint32 plIndex = m_playlists.indexOf(ev->playlist());
+        qint32 plIndex = this->indexOf(ev->playlist());
         if(plIndex == ev->newPosition()) {
             //Playlist was moved correctly
         }
@@ -141,5 +142,22 @@ void PlaylistContainer::onMetadataUpdated()
                 m_playlists.append(new Playlist(pl));
             }
         }
+
+        updated = true;
     }
+
+    if(updated) {
+        emit containerDataChanged();
+    }
+}
+
+qint32 PlaylistContainer::indexOf(sp_playlist* playlist)
+{
+    for(qint32 i=0 ; i<m_playlists.count() ; ++i) {
+        if(m_playlists.at(i)->native() == playlist) {
+            return i;
+        }
+    }
+
+    return -1;
 }

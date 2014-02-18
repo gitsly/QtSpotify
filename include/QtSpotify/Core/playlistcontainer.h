@@ -26,6 +26,9 @@ class QTS_EXPORT PlaylistContainer : public QObject
 
     Q_OBJECT
 
+    Q_PROPERTY(QList<Playlist*> playlists READ playlists NOTIFY containerDataChanged)
+
+
 public:
 
     static QHash<sp_playlistcontainer*, PlaylistContainer*> containerObjects;
@@ -94,7 +97,13 @@ private slots:
 
     void onMetadataUpdated();
 
+signals:
+
+    void containerDataChanged();
+
 private:
+
+    qint32 indexOf(sp_playlist* playlist);
 
     QList<Playlist*> m_playlists;
 
