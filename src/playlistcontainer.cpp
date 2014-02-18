@@ -22,6 +22,7 @@ PlaylistContainer::PlaylistContainer(sp_playlistcontainer* pc) :
     sp_playlistcontainer_add_callbacks(m_spContainer, m_callbacks, nullptr);
 
     connect(Session::instance(), &Session::metadataUpdated, this, &PlaylistContainer::onMetadataUpdated);
+    onMetadataUpdated();
 }
 
 PlaylistContainer::~PlaylistContainer()

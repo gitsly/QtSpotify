@@ -26,7 +26,7 @@ libspotify supports (Windows (Phone), Linux, iOS, Android, ARM (v5, v6, v7), Mac
 * Mac OS X
 
 
-##### Current build tests
+### Current build tests
 * Qt 5.2.1 MSVC 2012
 * Qt 5.2.0 MSVC 2012
 

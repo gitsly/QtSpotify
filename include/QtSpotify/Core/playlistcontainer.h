@@ -30,11 +30,23 @@ public:
 
     static QHash<sp_playlistcontainer*, PlaylistContainer*> containerObjects;
 
+    /*!
+     * \brief Constructs a playlist container and loads all metadata
+     * \param pc The playlist container
+     */
     PlaylistContainer(sp_playlistcontainer* pc);
     virtual ~PlaylistContainer();
 
+    /*!
+     * \brief Get the playlists in the playlist container
+     * \return A list of playlists
+     */
     QList<Playlist*> playlists() const;
 
+    /*!
+     * \brief native
+     * \return
+     */
     sp_playlistcontainer* native() const;
 
     /*!
