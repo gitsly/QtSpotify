@@ -6,6 +6,7 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QBuffer>
 #include <QtCore/QThread>
+#include <QtCore/QEvent>
 
 #include <QtMultimedia/QAudioOutput>
 #include <QtMultimedia/QAudioFormat>

@@ -21,7 +21,8 @@ SOURCES += \
     src/search.cpp \
     src/track.cpp \
     src/user.cpp \
-    src/session.cpp
+    src/session.cpp \
+    src/audioplayer.cpp
 
 HEADERS += \
     include/QtSpotify/Album \
@@ -49,7 +50,11 @@ HEADERS += \
     include/QtSpotify/Core/searchcallbacks.h \
     include/QtSpotify/Core/playlistcallbacks.h \
     include/QtSpotify/Core/albumbrowsecallbacks.h \
-    include/QtSpotify/Core/artistbrowsecallbacks.h
+    include/QtSpotify/Core/artistbrowsecallbacks.h \
+    include/QtSpotify/Audio/audioplayer.h \
+    include/QtSpotify/Audio/audioevents.h \
+    include/QtSpotify/Core/sessioncallbacks.h \
+    apikey.h
 
 INCLUDEPATH += include
 
