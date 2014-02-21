@@ -1,5 +1,6 @@
-QtSpotify
+QtSpotify - Experimental
 =========
+**Please note that this is experimental code with __advanced__ concepts**.
 
 Qt 5 wrapper for libspotify.
 The goal is to fully implement all functionality that libspotify provides.
