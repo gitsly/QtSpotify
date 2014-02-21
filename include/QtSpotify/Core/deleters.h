@@ -3,36 +3,22 @@
 
 #include <libspotify/api.h>
 
-void deleteTrack(sp_track* track) {
-    sp_track_release(track);
-}
+extern void deleteTrack(sp_track* track);
 
-void deleteArtist(sp_artist* artist) {
-    sp_artist_release(artist);
-}
+extern void deleteArtist(sp_artist* artist);
 
-void deleteAlbum(sp_album* album) {
-    sp_album_release(album);
-}
+extern void deleteAlbum(sp_album* album);
 
-void deleteArtistBrowse(sp_artistbrowse* artistBrowse) {
-    sp_artistbrowse_release(artistBrowse);
-}
+extern void deleteArtistBrowse(sp_artistbrowse* artistBrowse);
 
-void deleteAlbumBrowse(sp_albumbrowse* albumBrowse) {
-    sp_albumbrowse_release(albumBrowse);
-}
+extern void deleteAlbumBrowse(sp_albumbrowse* albumBrowse);
 
-void deletePlaylist(sp_playlist* playlist) {
-    sp_playlist_release(playlist);
-}
+extern void deletePlaylist(sp_playlist* playlist);
 
-void deletePlaylistContainer(sp_playlistcontainer* playlistContainer) {
-    sp_playlistcontainer_release(playlistContainer);
-}
+extern void deletePlaylistContainer(sp_playlistcontainer* playlistContainer);
 
-void deleteSearch(sp_search* search) {
-    sp_search_release(search);
-}
+extern void deleteSearch(sp_search* search);
+
+extern void deleteUser(sp_user* user);
 
 #endif

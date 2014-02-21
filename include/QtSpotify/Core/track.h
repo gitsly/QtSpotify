@@ -2,13 +2,18 @@
 #define QTSPOTIFY_TRACK_H_
 
 #include <QtSpotify/Core/global.h>
-#include <QtSpotify/Album>
-#include <QtSpotify/Artist>
+
 #include <QtQml/QQmlListProperty>
 #include <QtCore/QObject>
 #include <libspotify/api.h>
 #include <memory>
 
+#include <QtSpotify/Core/user.h>
+
+namespace QtSpotify {
+
+class Album;
+class Artist;
 class Playlist;
 
 enum class TrackOfflineStatus {
@@ -37,13 +42,17 @@ class QTS_EXPORT Track : public QObject
 
 public:
 
-    explicit Track(sp_track* track, std::shared_ptr<Playlist> playlist = nullptr);
+    explicit Track(sp_track* track, std::shared_ptr<QtSpotify::Playlist> playlist = nullptr);
     virtual ~Track();
 
     QString name() const;
 
     QQmlListProperty<Artist> artists();
     Album* album() const;
+    User* creator() const;
+
+    bool starred() const;
+    bool seen() const;
 
     qint32 duration() const;
     qint32 popularity() const;
@@ -62,8 +71,12 @@ private:
 
     QString m_name;
 
-    QList<std::shared_ptr<Artist>> m_artists;
+    QList<std::shared_ptr<Artist> > m_artists;
     std::shared_ptr<Album> m_album;
+    std::shared_ptr<User> m_creator;
+
+    bool m_starred;
+    bool m_seen;
 
     qint32 m_duration;
     qint32 m_popularity;
@@ -71,11 +84,12 @@ private:
     qint32 m_discIndex;
 
     std::weak_ptr<Playlist> m_playlist;
-
     std::shared_ptr<sp_track> m_spTrack;
 
     static qint32 artistsCountFunction(QQmlListProperty<Artist>* list);
     static Artist* artistsAtFunction(QQmlListProperty<Artist>* list, qint32 index);
 };
+
+}
 
 #endif

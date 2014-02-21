@@ -22,7 +22,9 @@ SOURCES += \
     src/playqueue.cpp \
     src/search.cpp \
     src/spotify.cpp \
-    src/track.cpp
+    src/track.cpp \
+    src/deleters.cpp \
+    src/user.cpp
 
 HEADERS += \
     include/QtSpotify/Core/album.h \
@@ -36,7 +38,9 @@ HEADERS += \
     include/QtSpotify/Core/spotify.h \
     include/QtSpotify/Core/track.h \
     include/QtSpotify/Core/global.h \
-    include/QtSpotify/Core/deleters.h
+    include/QtSpotify/Core/deleters.h \
+    include/QtSpotify/Core/user.h \
+    include/QtSpotify/Core/playlistcallbacks.h
 
 win32: LIBS += -L$$PWD/../libraries/libspotify/lib/ -llibspotify
 

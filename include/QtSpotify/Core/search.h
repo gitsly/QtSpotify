@@ -5,6 +5,8 @@
 
 #include <QtCore/QObject>
 
+namespace QtSpotify {
+
 class QTS_EXPORT Search : public QObject
 {
 
@@ -17,5 +19,7 @@ public:
 private:
 
 };
+
+}
 
 #endif

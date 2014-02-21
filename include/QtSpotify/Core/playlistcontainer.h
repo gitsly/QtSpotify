@@ -5,6 +5,8 @@
 
 #include <QtCore/QObject>
 
+namespace QtSpotify {
+
 class QTS_EXPORT PlaylistContainer : public QObject
 {
 
@@ -17,5 +19,7 @@ public:
 private:
 
 };
+
+}
 
 #endif

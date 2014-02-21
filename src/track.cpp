@@ -2,6 +2,8 @@
 #include <QtSpotify/Spotify>
 #include <QtSpotify/Core/deleters.h>
 
+namespace QtSpotify {
+
 Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist)
 {
     if(playlist != nullptr) {
@@ -28,9 +30,24 @@ Album* Track::album() const
     return m_album.get();
 }
 
+User* Track::creator() const
+{
+    return m_creator.get();
+}
+
 QString Track::name() const
 {
     return m_name;
+}
+
+bool Track::starred() const
+{
+    return m_starred;
+}
+
+bool Track::seen() const
+{
+    return m_seen;
 }
 
 qint32 Track::duration() const
@@ -78,4 +95,6 @@ Artist* Track::artistsAtFunction(QQmlListProperty<Artist>* list, qint32 index)
     }
 
     return nullptr;
+}
+
 }
