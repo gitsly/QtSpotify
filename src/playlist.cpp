@@ -1,7 +1,6 @@
 #include <QtSpotify/Core/playlist.h>
-#include <QtSpotify/Track>
+#include <QtSpotify/Core/track.h>
 #include <QtSpotify/Spotify>
-#include <QtSpotify/Core/playlistcallbacks.h>
 #include <QtSpotify/Core/deleters.h>
 
 namespace QtSpotify {
@@ -10,6 +9,7 @@ QHash<sp_playlist*, Playlist*> Playlist::playlistObjects = QHash<sp_playlist*, P
 
 Playlist::Playlist(sp_playlist* playlist)
 {
+    sp_playlist_add_ref(playlist);
     m_spPlaylist = std::shared_ptr<sp_playlist>(playlist, deletePlaylist);
 
     //Add this playlist to playlistObjects so the callbacks knows which class to post events to
@@ -93,7 +93,7 @@ quint32 Playlist::totalDuration() const
     return total;
 }
 
-QtSpotify::User* Playlist::owner() const
+User* Playlist::owner() const
 {
     return m_owner.get();
 }
@@ -116,6 +116,11 @@ void Playlist::setCollaborative(bool collaborative)
     }
 }
 
+PlaylistOfflineStatus Playlist::offlineStatus() const
+{
+    return m_offlineStatus;
+}
+
 QQmlListProperty<Track> Playlist::tracks()
 {
     return QQmlListProperty<Track>(this, nullptr, &Playlist::tracksAppendFunction, &Playlist::tracksCountFunction,
@@ -124,6 +129,33 @@ QQmlListProperty<Track> Playlist::tracks()
 
 void Playlist::onMetadataUpdated()
 {
+    bool updated = false;
+
+    QString name = QString::fromUtf8(sp_playlist_name(m_spPlaylist.get()));
+    std::shared_ptr<User> owner = std::make_shared<User>(sp_playlist_owner(m_spPlaylist.get()));
+    bool collaborative = sp_playlist_is_collaborative(m_spPlaylist.get());
+    QString description = sp_playlist_get_description(m_spPlaylist.get());
+    PlaylistOfflineStatus offlineStatus = PlaylistOfflineStatus(sp_playlist_get_offline_status(Spotify::instance().session().get(), m_spPlaylist.get()));
+
+    if(m_tracks.isEmpty()) {
+        qint32 trackCount = sp_playlist_num_tracks(m_spPlaylist.get());
+
+        for(qint32 i=0 ; i<trackCount ; ++i) {
+            m_tracks.append(std::make_shared<Track>(sp_playlist_track(m_spPlaylist.get(), i)));
+        }
+
+        updated = true;
+    }
+
+    updated |= exchange(m_name, name);
+    updated |= exchange(m_owner, owner);
+    updated |= exchange(m_collaborative, collaborative);
+    updated |= exchange(m_description, description);
+    updated |= exchange(m_offlineStatus, offlineStatus);
+
+    if(updated) {
+        emit playlistDataChanged();
+    }
 }
 
 bool Playlist::event(QEvent* e)

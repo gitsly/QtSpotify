@@ -1,5 +1,8 @@
 #include <QtSpotify/Core/track.h>
 #include <QtSpotify/Spotify>
+#include <QtSpotify/Artist>
+#include <QtSpotify/Album>
+#include <QtSpotify/Core/playlist.h>
 #include <QtSpotify/Core/deleters.h>
 
 namespace QtSpotify {
@@ -10,6 +13,7 @@ Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist)
         m_playlist = std::weak_ptr<Playlist>(playlist);
     }
 
+    sp_track_add_ref(track);
     m_spTrack = std::shared_ptr<sp_track>(track, deleteTrack);
 
     connect(&Spotify::instance(), &Spotify::metadataUpdated, this, &Track::onMetadataUpdated);
@@ -70,9 +74,46 @@ qint32 Track::discIndex() const
     return m_discIndex;
 }
 
+TrackOfflineStatus Track::offlineStatus() const
+{
+    return m_offlineStatus;
+}
+
 void Track::onMetadataUpdated()
 {
+    bool updated = false;
 
+    bool starred = sp_track_is_starred(Spotify::instance().session().get(), m_spTrack.get());
+    QString name = sp_track_name(m_spTrack.get());
+    qint32 duration = sp_track_duration(m_spTrack.get());
+    qint32 popularity = sp_track_popularity(m_spTrack.get());
+    qint32 disc = sp_track_disc(m_spTrack.get());
+    qint32 discIndex = sp_track_index(m_spTrack.get());
+
+    if(m_artists.isEmpty()) {
+        qint32 numArtists = sp_track_num_artists(m_spTrack.get());
+        for(qint32 i=0 ; i<numArtists ; ++i) {
+            m_artists.append(std::make_shared<Artist>(sp_track_artist(m_spTrack.get(), i)));
+        }
+
+        updated = true;
+    }
+
+    if(m_album == nullptr) {
+        m_album = std::make_shared<Album>(sp_track_album(m_spTrack.get()));
+        updated = true;
+    }
+
+    updated |= exchange(m_starred, starred);
+    updated |= exchange(m_name, name);
+    updated |= exchange(m_duration, duration);
+    updated |= exchange(m_popularity, popularity);
+    updated |= exchange(m_disc, disc);
+    updated |= exchange(m_discIndex, discIndex);
+
+    if(updated) {
+        emit trackDataChanged();
+    }
 }
 
 qint32 Track::artistsCountFunction(QQmlListProperty<Artist>* list)

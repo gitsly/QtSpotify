@@ -3,7 +3,6 @@
 
 #include <QtSpotify/Core/global.h>
 #include <QtSpotify/Core/playlistcallbacks.h>
-#include <QtSpotify/Core/track.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -17,6 +16,14 @@
 namespace QtSpotify {
 
 class User;
+class Track;
+
+enum class PlaylistOfflineStatus {
+    No = SP_PLAYLIST_OFFLINE_STATUS_NO,
+    Yes = SP_PLAYLIST_OFFLINE_STATUS_YES,
+    Downloading = SP_PLAYLIST_OFFLINE_STATUS_DOWNLOADING,
+    Waiting = SP_PLAYLIST_OFFLINE_STATUS_WAITING
+};
 
 class QTS_EXPORT Playlist : public QObject
 {
@@ -28,6 +35,7 @@ class QTS_EXPORT Playlist : public QObject
     Q_PROPERTY(QString description READ description NOTIFY descriptionChanged)
     Q_PROPERTY(bool collaborative READ collaborative WRITE setCollaborative NOTIFY collaborativeChanged)
     Q_PROPERTY(qint32 totalDuration READ totalDuration NOTIFY totalDurationChanged)
+    Q_PROPERTY(User* owner READ owner NOTIFY playlistDataChanged)
 
 public:
 
@@ -72,7 +80,7 @@ public:
      * \brief Returns a pointer to the User owning the playlist
      * \return
      */
-    QtSpotify::User* owner() const;
+    User* owner() const;
 
     /*!
      * \brief Returns the collaborative-status of the playlist
@@ -85,6 +93,12 @@ public:
      * \param collaborative True if the playlist should be collaborative, false otherwise
      */
     void setCollaborative(bool collaborative);
+
+    /*!
+     * \brief Returns the current offline status for the playlist
+     * \return A value representing the current offline status
+     */
+    PlaylistOfflineStatus offlineStatus() const;
 
     /*!
      * \brief Returns a list of tracks in the playlist
@@ -154,6 +168,8 @@ private:
     QList<std::shared_ptr<Track> > m_tracks;
     std::shared_ptr<QtSpotify::User> m_owner;
     std::shared_ptr<sp_playlist> m_spPlaylist;
+
+    PlaylistOfflineStatus m_offlineStatus;
 
     quint32 m_totalDuration;
     sp_playlist_callbacks* m_callbacks;

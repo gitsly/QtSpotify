@@ -24,7 +24,8 @@ public:
 
     static Spotify& instance();
 
-   QtSpotify::User* user() const;
+    QtSpotify::User* user() const;
+    std::shared_ptr<sp_session> session() const;
 
 signals:
 
@@ -36,6 +37,7 @@ private:
     Q_DISABLE_COPY(Spotify)
 
     std::shared_ptr<QtSpotify::User> m_user;
+    std::shared_ptr<sp_session> m_spSession;
 
 };
 

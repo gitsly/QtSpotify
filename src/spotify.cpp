@@ -23,4 +23,9 @@ User* Spotify::user() const
     return m_user.get();
 }
 
+std::shared_ptr<sp_session> Spotify::session() const
+{
+    return m_spSession;
+}
+
 }

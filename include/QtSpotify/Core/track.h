@@ -59,6 +59,8 @@ public:
     qint32 disc() const;
     qint32 discIndex() const;
 
+    TrackOfflineStatus offlineStatus() const;
+
 private slots:
 
     void onMetadataUpdated();
@@ -82,6 +84,8 @@ private:
     qint32 m_popularity;
     qint32 m_disc;
     qint32 m_discIndex;
+
+    TrackOfflineStatus m_offlineStatus;
 
     std::weak_ptr<Playlist> m_playlist;
     std::shared_ptr<sp_track> m_spTrack;
