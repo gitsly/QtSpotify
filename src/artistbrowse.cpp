@@ -18,6 +18,7 @@ ArtistBrowse::ArtistBrowse(sp_artist* artist)
                                                             SP_ARTISTBROWSE_FULL,
                                                             &ArtistBrowse::aristBrowseCompleteCallback,
                                                             nullptr), deleteArtistBrowse);
+    sp_artistbrowse_add_ref(m_spArtistBrowse.get());
     artistBrowseObjects.insert(m_spArtistBrowse.get(), this);
 }
 
