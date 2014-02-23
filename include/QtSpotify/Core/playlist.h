@@ -2,7 +2,7 @@
 #define QTSPOTIFY_PLAYLIST_H_
 
 #include <QtSpotify/Core/global.h>
-#include <QtSpotify/Core/playlistcallbacks.h>
+#include <QtSpotify/Core/playlistevents.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>

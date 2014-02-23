@@ -11,6 +11,9 @@ UI_DIR = uis
 DEFINES += QTSPOTIFY_LIBRARY
 
 INCLUDEPATH += include
+win32: LIBS += -L$$PWD/../libraries/libspotify/lib/ -llibspotify
+INCLUDEPATH += $$PWD/../libraries/libspotify/include
+DEPENDPATH += $$PWD/../libraries/libspotify/include
 
 SOURCES += \
     src/album.cpp \
@@ -40,9 +43,26 @@ HEADERS += \
     include/QtSpotify/Core/global.h \
     include/QtSpotify/Core/deleters.h \
     include/QtSpotify/Core/user.h \
-    include/QtSpotify/Core/playlistcallbacks.h
+    include/QtSpotify/Core/playlistevents.h \
+    include/QtSpotify/Core/playlistcontainerevents.h \
+    include/QtSpotify/Core/apikey.h
 
-win32: LIBS += -L$$PWD/../libraries/libspotify/lib/ -llibspotify
+win32 {
+    if(isEmpty(PREFIX)) {
+        PREFIX = "F:/workspaces/libraries/$$TARGET"
+    }
 
-INCLUDEPATH += $$PWD/../libraries/libspotify/include
-DEPENDPATH += $$PWD/../libraries/libspotify/include
+    BINDIR = $$PREFIX/lib
+    INCDIR = $$PREFIX/include
+}
+
+unix {
+
+}
+
+
+target.path = $$BINDIR
+INSTALLS += target
+
+QMAKE_POST_LINK = $$quote(xcopy /s /q /y /i $$system_path($$absolute_path(include)) $$system_path($$INCDIR))
+message($$QMAKE_POST_LINK)

@@ -21,4 +21,6 @@ extern void deleteSearch(sp_search* search);
 
 extern void deleteUser(sp_user* user);
 
+extern void deleteSession(sp_session* session);
+
 #endif

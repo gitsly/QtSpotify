@@ -35,3 +35,7 @@ void deleteSearch(sp_search* search) {
 void deleteUser(sp_user* user) {
     sp_user_release(user);
 }
+
+void deleteSession(sp_session* session) {
+    sp_session_release(session);
+}
