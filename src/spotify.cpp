@@ -2,6 +2,8 @@
 #include <QtSpotify/Core/apikey.h>
 #include <QtSpotify/Core/deleters.h>
 
+#include <QtSpotify/Core/user.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
@@ -9,14 +11,22 @@ namespace QtSpotify {
 
 Spotify::Spotify() :
     QObject(nullptr),
-    m_processTimerId(0)
+    m_processTimerId(0),
+    m_user(nullptr),
+    m_callbacks(nullptr),
+    m_config(nullptr),
+    m_networkManager(nullptr)
 {
+    m_networkManager = std::make_shared<QNetworkConfigurationManager>();
+
     m_callbacks = std::shared_ptr<sp_session_callbacks>(new sp_session_callbacks());
     m_callbacks->logged_in = &Spotify::loggedInCallback;
     m_callbacks->logged_out = &Spotify::loggedOutCallback;
     m_callbacks->metadata_updated = &Spotify::metadataUpdatedCallback;
+    m_callbacks->connection_error = &Spotify::connectionErrorCallback;
     m_callbacks->log_message = &Spotify::logMessageCallback;
     m_callbacks->notify_main_thread = &Spotify::notifyMainThreadCallback;
+    m_callbacks->offline_error = &Spotify::offlineErrorCallback;
 
     m_config = std::shared_ptr<sp_session_config>(new sp_session_config());
     m_config->api_version = SPOTIFY_API_VERSION;
@@ -28,17 +38,18 @@ Spotify::Spotify() :
     m_config->settings_location = "settings";
     m_config->callbacks = m_callbacks.get();
 
-    sp_session* sess;
-    sp_error error = sp_session_create(m_config.get(), &sess);
+    sp_session* tmpSession;
 
-    m_spSession = std::shared_ptr<sp_session>(sess, deleteSession);
+    sp_error error = sp_session_create(m_config.get(), &tmpSession);
+    m_spSession = std::shared_ptr<sp_session>(tmpSession, deleteSession);
+
+    checkNetwork();
 
     if(error != SP_ERROR_OK) {
         qDebug() << "Session creation error: " << QString::fromUtf8(sp_error_message(error));
     }
     else {
-        sp_session_set_connection_rules(m_spSession.get(), SP_CONNECTION_RULE_ALLOW_SYNC_OVER_WIFI);
-        sp_session_set_connection_type(m_spSession.get(), SP_CONNECTION_TYPE_WIRED);
+
     }
 }
 
@@ -67,10 +78,14 @@ bool Spotify::event(QEvent* e)
 {
     switch(e->type()) {
         case QEvent::User:
+        {
             //Logged in event
             qDebug() << "Spotify::event | Logged in event";
+            m_user = std::make_shared<User>(sp_session_user(m_spSession.get()));
+            checkNetwork();
             e->accept();
             return true;
+        }
         case QEvent::User + 1:
             //Logged out event
             qDebug() << "Spotify::event | Logged out event";
@@ -84,7 +99,6 @@ bool Spotify::event(QEvent* e)
             return true;
         case QEvent::User + 5:
             //Metadata updated event
-            qDebug() << "Spotify::event | Notify main thread event";
             processSpotifyEvents();
             e->accept();
             return true;
@@ -107,14 +121,69 @@ bool Spotify::event(QEvent* e)
 
 void Spotify::login(const QString& username, const QString& password, bool rememberMe)
 {
-    qDebug() << "Posting login";
     sp_session_login(m_spSession.get(), username.toUtf8().constData(), password.toUtf8().constData(), rememberMe, nullptr);
 }
 
 void Spotify::logout(bool keepLoginInformation)
 {
-    qDebug() << "Posting logout";
     sp_session_logout(m_spSession.get());
+}
+
+void Spotify::checkNetwork()
+{
+    if(!m_networkManager->isOnline()) {
+        sp_session_set_connection_type(m_spSession.get(), SP_CONNECTION_TYPE_NONE);
+        return;
+    }
+
+    QList<QNetworkConfiguration> activeConfigs = m_networkManager->allConfigurations(QNetworkConfiguration::Active);
+    bool wired, wifi, mobile, roaming;
+    wired = wifi = mobile = roaming = false;
+
+    for(qint32 i=0 ; i<activeConfigs.count() ; ++i) {
+
+        QNetworkConfiguration::BearerType bearerType = activeConfigs.at(i).bearerType();
+
+        if(bearerType == QNetworkConfiguration::BearerEthernet) {
+            wired = true;
+            break;
+        }
+        else if(bearerType == QNetworkConfiguration::BearerWLAN) {
+            wifi = true;
+            break;
+        }
+        else if(bearerType == QNetworkConfiguration::Bearer2G ||
+                bearerType == QNetworkConfiguration::Bearer3G ||
+                bearerType == QNetworkConfiguration::Bearer4G ||
+                bearerType == QNetworkConfiguration::BearerCDMA2000 ||
+                bearerType == QNetworkConfiguration::BearerWCDMA ||
+                bearerType == QNetworkConfiguration::BearerHSPA ||
+                bearerType == QNetworkConfiguration::BearerWiMAX ||
+                bearerType == QNetworkConfiguration::BearerEVDO ||
+                bearerType == QNetworkConfiguration::BearerLTE) {
+            mobile = true;
+        }
+
+        if(activeConfigs.at(i).isRoamingAvailable()) {
+            roaming = true;
+        }
+    }
+
+    sp_connection_type connectionType;
+    if(wired) connectionType = SP_CONNECTION_TYPE_WIRED;
+    else if(wifi) connectionType = SP_CONNECTION_TYPE_WIFI;
+    else if(mobile) connectionType = SP_CONNECTION_TYPE_MOBILE;
+    else if(roaming) connectionType = SP_CONNECTION_TYPE_MOBILE_ROAMING;
+    else connectionType = SP_CONNECTION_TYPE_UNKNOWN;
+
+    sp_session_set_connection_type(m_spSession.get(), connectionType);
+
+    /*if(m_focedOfflineMode) {
+        setOfflineMode(true, true);
+    }
+    else {
+        setConnectionRule(ConnectionRule::AllowNetwork, !m_offlineMode);
+    }*/
 }
 
 void Spotify::processSpotifyEvents()
@@ -138,8 +207,9 @@ void Spotify::loggedInCallback(sp_session*, sp_error error)
         QString message = QString::fromUtf8(sp_error_message(error));
         qDebug() << "loggedInCallback Error: " << message;
     }
-
-    QCoreApplication::postEvent(&Spotify::instance(), new QEvent(QEvent::Type(QEvent::User)));
+    else {
+        QCoreApplication::postEvent(&Spotify::instance(), new QEvent(QEvent::Type(QEvent::User)));
+    }
 }
 
 void Spotify::loggedOutCallback(sp_session*)
@@ -152,15 +222,28 @@ void Spotify::metadataUpdatedCallback(sp_session*)
     QCoreApplication::postEvent(&Spotify::instance(), new QEvent(QEvent::Type(QEvent::User + 2)));
 }
 
+void Spotify::connectionErrorCallback(sp_session*, sp_error error)
+{
+    if(error != SP_ERROR_OK) {
+        qDebug() << "Connection error callback: " << QString::fromUtf8(sp_error_message(error));
+    }
+}
+
 void Spotify::notifyMainThreadCallback(sp_session*)
 {
-    qDebug() << "Notify main thread callback";
     QCoreApplication::postEvent(&Spotify::instance(), new QEvent(QEvent::Type(QEvent::User + 5)));
 }
 
 void Spotify::logMessageCallback(sp_session*, const char* message)
 {
     qDebug() << QString::fromUtf8(message);
+}
+
+void Spotify::offlineErrorCallback(sp_session*, sp_error error)
+{
+    if(error != SP_ERROR_OK) {
+        qDebug() << "Offline error callback: " << QString::fromUtf8(sp_error_message(error));
+    }
 }
 
 

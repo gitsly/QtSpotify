@@ -35,7 +35,7 @@ class QTS_EXPORT Playlist : public QObject
     Q_PROPERTY(QString description READ description NOTIFY descriptionChanged)
     Q_PROPERTY(bool collaborative READ collaborative WRITE setCollaborative NOTIFY collaborativeChanged)
     Q_PROPERTY(qint32 totalDuration READ totalDuration NOTIFY totalDurationChanged)
-    Q_PROPERTY(User* owner READ owner NOTIFY playlistDataChanged)
+    //Q_PROPERTY(User* owner READ owner NOTIFY playlistDataChanged)
 
 public:
 
@@ -80,7 +80,7 @@ public:
      * \brief Returns a pointer to the User owning the playlist
      * \return
      */
-    User* owner() const;
+    //User* owner() const;
 
     /*!
      * \brief Returns the collaborative-status of the playlist
@@ -166,7 +166,7 @@ private:
     QString m_description;
     bool m_collaborative;
     QList<std::shared_ptr<Track> > m_tracks;
-    std::shared_ptr<QtSpotify::User> m_owner;
+    //std::shared_ptr<QtSpotify::User> m_owner;
     std::shared_ptr<sp_playlist> m_spPlaylist;
 
     PlaylistOfflineStatus m_offlineStatus;

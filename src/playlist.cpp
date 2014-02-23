@@ -63,9 +63,9 @@ QString Playlist::name() const
 //TODO: Check in the callback if it was successful
 void Playlist::setName(const QString &name)
 {
-    if( owner() != Spotify::instance().user() ) {
+    /*if( owner() != Spotify::instance().user() ) {
         return;
-    }
+    }*/
 
     QString trimmedName = name.trimmed();
     if( trimmedName.size() <= 0 ) {
@@ -93,10 +93,10 @@ quint32 Playlist::totalDuration() const
     return total;
 }
 
-User* Playlist::owner() const
+/*User* Playlist::owner() const
 {
     return m_owner.get();
-}
+}*/
 
 bool Playlist::collaborative() const
 {
@@ -107,9 +107,9 @@ bool Playlist::collaborative() const
 //TODO: Check in callback if the setting was successful
 void Playlist::setCollaborative(bool collaborative)
 {
-    if( owner() != Spotify::instance().user() ) {
+    /*if( owner() != Spotify::instance().user() ) {
         return;
-    }
+    }*/
 
     if(collaborative != m_collaborative) {
         sp_playlist_set_collaborative(m_spPlaylist.get(), collaborative);
@@ -132,7 +132,7 @@ void Playlist::onMetadataUpdated()
     bool updated = false;
 
     QString name = QString::fromUtf8(sp_playlist_name(m_spPlaylist.get()));
-    std::shared_ptr<User> owner = std::make_shared<User>(sp_playlist_owner(m_spPlaylist.get()));
+    //std::shared_ptr<User> owner = std::make_shared<User>(sp_playlist_owner(m_spPlaylist.get()));
     bool collaborative = sp_playlist_is_collaborative(m_spPlaylist.get());
     QString description = sp_playlist_get_description(m_spPlaylist.get());
     PlaylistOfflineStatus offlineStatus = PlaylistOfflineStatus(sp_playlist_get_offline_status(Spotify::instance().session().get(), m_spPlaylist.get()));
@@ -141,14 +141,14 @@ void Playlist::onMetadataUpdated()
         qint32 trackCount = sp_playlist_num_tracks(m_spPlaylist.get());
 
         for(qint32 i=0 ; i<trackCount ; ++i) {
-            m_tracks.append(std::make_shared<Track>(sp_playlist_track(m_spPlaylist.get(), i)));
+            m_tracks.append(std::make_shared<Track>(sp_playlist_track(m_spPlaylist.get(), i), std::shared_ptr<Playlist>(this)));
         }
 
         updated = true;
     }
 
     updated |= exchange(m_name, name);
-    updated |= exchange(m_owner, owner);
+    //updated |= exchange(m_owner, owner);
     updated |= exchange(m_collaborative, collaborative);
     updated |= exchange(m_description, description);
     updated |= exchange(m_offlineStatus, offlineStatus);

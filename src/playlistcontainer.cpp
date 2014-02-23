@@ -11,12 +11,16 @@ namespace QtSpotify {
 
 QHash<sp_playlistcontainer*, PlaylistContainer*> PlaylistContainer::containerObjects = QHash<sp_playlistcontainer*, PlaylistContainer*>();
 
-PlaylistContainer::PlaylistContainer(sp_playlistcontainer* container)
+PlaylistContainer::PlaylistContainer(sp_playlistcontainer* container) :
+    QObject(nullptr),
+    m_spContainer(nullptr),
+    m_callbacks(nullptr)
 {
+    sp_playlistcontainer_add_ref(container);
     m_spContainer = std::shared_ptr<sp_playlistcontainer>(container, deletePlaylistContainer);
     containerObjects.insert(m_spContainer.get(), this);
 
-    m_callbacks = std::shared_ptr<sp_playlistcontainer_callbacks>();
+    m_callbacks = std::shared_ptr<sp_playlistcontainer_callbacks>(new sp_playlistcontainer_callbacks());
     m_callbacks->playlist_added = &PlaylistContainer::playlistAddedCallback;
     m_callbacks->playlist_removed = &PlaylistContainer::playlistRemovedCallback;
     m_callbacks->playlist_moved = &PlaylistContainer::playlistMovedCallback;
@@ -30,11 +34,6 @@ PlaylistContainer::PlaylistContainer(sp_playlistcontainer* container)
 PlaylistContainer::~PlaylistContainer()
 {
 
-}
-
-User* PlaylistContainer::owner() const
-{
-    return m_owner.get();
 }
 
 QQmlListProperty<Playlist> PlaylistContainer::playlists()
@@ -81,10 +80,6 @@ bool PlaylistContainer::event(QEvent* e)
 
 void PlaylistContainer::onMetadataUpdated()
 {
-    if(m_owner == nullptr) {
-        m_owner = std::make_shared<User>(sp_playlistcontainer_owner(m_spContainer.get()));
-    }
-
     if(m_playlists.isEmpty()) {
         qint32 numPlaylists = sp_playlistcontainer_num_playlists(m_spContainer.get());
 

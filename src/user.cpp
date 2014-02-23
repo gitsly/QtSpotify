@@ -1,5 +1,9 @@
 #include <QtSpotify/Core/user.h>
 #include <QtSpotify/Core/deleters.h>
+#include <QtSpotify/Core/spotify.h>
+
+#include <QtSpotify/Core/playlist.h>
+#include <QtSpotify/Core/playlistcontainer.h>
 
 #include <libspotify/api.h>
 
@@ -9,6 +13,8 @@ User::User(sp_user* user)
 {
     sp_user_add_ref(user);
     m_spUser = std::shared_ptr<sp_user>(user, deleteUser);
+
+    loadMetaData();
 }
 
 User::~User()
@@ -34,6 +40,18 @@ Playlist* User::starredList() const
 PlaylistContainer* User::playlistContainer() const
 {
     return m_playlistContainer.get();
+}
+
+void User::loadMetaData()
+{
+    m_displayName = QString::fromUtf8(sp_user_display_name(m_spUser.get()));
+    m_canonicalName = QString::fromUtf8(sp_user_canonical_name(m_spUser.get()));
+    m_starredList = std::make_shared<Playlist>(sp_session_starred_for_user_create(
+                                                   Spotify::instance().session().get(), m_canonicalName.toUtf8().constData()
+                                                   ));
+    m_playlistContainer = std::make_shared<PlaylistContainer>(sp_session_publishedcontainer_for_user_create(
+                                                                  Spotify::instance().session().get(), m_canonicalName.toUtf8().constData()
+                                                                  ));
 }
 
 }

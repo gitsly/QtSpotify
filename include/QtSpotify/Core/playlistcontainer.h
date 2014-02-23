@@ -22,8 +22,6 @@ class QTS_EXPORT PlaylistContainer : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QQmlListProperty<Playlist> playlists READ playlists NOTIFY playlistsChanged)
-    Q_PROPERTY(User* owner READ owner NOTIFY playlistContainerDataChanged)
-
 
 public:
 
@@ -32,7 +30,6 @@ public:
     explicit PlaylistContainer(sp_playlistcontainer* container);
     virtual ~PlaylistContainer();
 
-    User* owner() const;
     QQmlListProperty<Playlist> playlists();
 
 protected:
@@ -55,7 +52,6 @@ private:
     void onPlaylistMoved(PlaylistMovedEvent* event);
 
     QList<std::shared_ptr<Playlist> > m_playlists;
-    std::shared_ptr<User> m_owner;
 
     std::shared_ptr<sp_playlistcontainer> m_spContainer;
     std::shared_ptr<sp_playlistcontainer_callbacks> m_callbacks;

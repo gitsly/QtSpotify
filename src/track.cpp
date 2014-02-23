@@ -4,10 +4,23 @@
 #include <QtSpotify/Album>
 #include <QtSpotify/Core/playlist.h>
 #include <QtSpotify/Core/deleters.h>
+#include <QtCore/QDebug>
 
 namespace QtSpotify {
 
-Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist)
+Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist) :
+    QObject(nullptr),
+    m_name(""),
+    m_album(nullptr),
+    m_creator(nullptr),
+    m_starred(false),
+    m_seen(true),
+    m_duration(0),
+    m_popularity(0),
+    m_disc(0),
+    m_discIndex(0),
+    m_offlineStatus(TrackOfflineStatus::No),
+    m_spTrack(nullptr)
 {
     if(playlist != nullptr) {
         m_playlist = std::weak_ptr<Playlist>(playlist);
@@ -89,6 +102,8 @@ void Track::onMetadataUpdated()
     qint32 popularity = sp_track_popularity(m_spTrack.get());
     qint32 disc = sp_track_disc(m_spTrack.get());
     qint32 discIndex = sp_track_index(m_spTrack.get());
+
+    qDebug() << "Track name: " << name;
 
     if(m_artists.isEmpty()) {
         qint32 numArtists = sp_track_num_artists(m_spTrack.get());

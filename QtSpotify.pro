@@ -49,7 +49,7 @@ HEADERS += \
 
 win32 {
     if(isEmpty(PREFIX)) {
-        PREFIX = "F:/workspaces/libraries/$$TARGET"
+        PREFIX = "C:/workspaces-local/libraries/$$TARGET"
     }
 
     BINDIR = $$PREFIX/lib

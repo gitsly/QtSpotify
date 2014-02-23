@@ -9,7 +9,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QEvent>
-
+#include <QtNetwork/QNetworkConfigurationManager>
 
 namespace QtSpotify {
 
@@ -47,6 +47,7 @@ private:
     Spotify();
     Q_DISABLE_COPY(Spotify)
 
+    void checkNetwork();
     void processSpotifyEvents();
 
     std::shared_ptr<QtSpotify::User> m_user;
@@ -57,13 +58,18 @@ private:
 
     qint32 m_processTimerId;
 
+    std::shared_ptr<QNetworkConfigurationManager> m_networkManager;
+
     static void SP_CALLCONV loggedInCallback(sp_session*, sp_error error);
     static void SP_CALLCONV loggedOutCallback(sp_session*);
     static void SP_CALLCONV metadataUpdatedCallback(sp_session*);
+    static void SP_CALLCONV connectionErrorCallback(sp_session*, sp_error error);
 
     static void SP_CALLCONV notifyMainThreadCallback(sp_session*);
 
     static void SP_CALLCONV logMessageCallback(sp_session*, const char* message);
+
+    static void SP_CALLCONV offlineErrorCallback(sp_session*, sp_error error);
 
 };
 

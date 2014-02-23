@@ -33,6 +33,8 @@ public:
 
 private:
 
+    void loadMetaData();
+
     QString m_displayName;
     QString m_canonicalName;
 
