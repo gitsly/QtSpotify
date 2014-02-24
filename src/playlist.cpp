@@ -150,7 +150,7 @@ void Playlist::onMetadataUpdated()
         qint32 trackCount = sp_playlist_num_tracks(m_spPlaylist.get());
 
         for(qint32 i=0 ; i<trackCount ; ++i) {
-            m_tracks.append(std::make_shared<Track>(sp_playlist_track(m_spPlaylist.get(), i), this));
+            m_tracks.append(std::make_shared<Track>(sp_playlist_track(m_spPlaylist.get(), i)));
         }
 
         updated = true;

@@ -8,7 +8,7 @@
 
 namespace QtSpotify {
 
-Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist) :
+Track::Track(sp_track* track) :
     QObject(nullptr),
     m_name(""),
     m_album(nullptr),
@@ -22,10 +22,6 @@ Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist) :
     m_offlineStatus(TrackOfflineStatus::No)
     //m_spTrack(nullptr)
 {
-    if(playlist != nullptr) {
-        m_playlist = std::weak_ptr<Playlist>(playlist);
-    }
-
     sp_track_add_ref(track);
     m_spTrack = std::shared_ptr<sp_track>(track, deleteTrack);
 
