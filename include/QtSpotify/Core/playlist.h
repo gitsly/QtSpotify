@@ -52,6 +52,8 @@ public:
      */
     virtual ~Playlist();
 
+    bool loaded() const;
+
     /*!
      * \brief Returns the name of the playlist
      * \return The name of the playlist

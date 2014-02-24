@@ -25,6 +25,8 @@ public:
     explicit User(sp_user* user);
     virtual ~User();
 
+    bool loaded() const;
+
     QString displayName() const;
     QString canonicalName() const;
 

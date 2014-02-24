@@ -3,6 +3,8 @@
 #include <QtSpotify/Spotify>
 #include <QtSpotify/Core/deleters.h>
 
+#include <QtCore/QDebug>
+
 namespace QtSpotify {
 
 QHash<sp_playlist*, Playlist*> Playlist::playlistObjects = QHash<sp_playlist*, Playlist*>();
@@ -53,6 +55,11 @@ Playlist::~Playlist()
     //TODO: See if it's possible to use a deleter func
     sp_playlist_remove_callbacks(m_spPlaylist.get(), m_callbacks, nullptr);
     delete m_callbacks;
+}
+
+bool Playlist::loaded() const
+{
+    return sp_playlist_is_loaded(m_spPlaylist.get());
 }
 
 QString Playlist::name() const
@@ -131,6 +138,8 @@ void Playlist::onMetadataUpdated()
 {
     bool updated = false;
 
+    qDebug() << "Playlist loaded status: " << loaded();
+
     QString name = QString::fromUtf8(sp_playlist_name(m_spPlaylist.get()));
     //std::shared_ptr<User> owner = std::make_shared<User>(sp_playlist_owner(m_spPlaylist.get()));
     bool collaborative = sp_playlist_is_collaborative(m_spPlaylist.get());
@@ -141,7 +150,7 @@ void Playlist::onMetadataUpdated()
         qint32 trackCount = sp_playlist_num_tracks(m_spPlaylist.get());
 
         for(qint32 i=0 ; i<trackCount ; ++i) {
-            m_tracks.append(std::make_shared<Track>(sp_playlist_track(m_spPlaylist.get(), i), std::shared_ptr<Playlist>(this)));
+            m_tracks.append(std::make_shared<Track>(sp_playlist_track(m_spPlaylist.get(), i), this));
         }
 
         updated = true;

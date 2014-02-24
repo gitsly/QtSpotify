@@ -42,8 +42,10 @@ class QTS_EXPORT Track : public QObject
 
 public:
 
-    explicit Track(sp_track* track, std::shared_ptr<QtSpotify::Playlist> playlist = nullptr);
+    explicit Track(sp_track* track, std::shared_ptr<Playlist> playlist = nullptr);
     virtual ~Track();
+
+    bool loaded() const;
 
     QString name() const;
 

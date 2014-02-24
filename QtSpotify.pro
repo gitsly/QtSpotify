@@ -49,7 +49,7 @@ HEADERS += \
 
 win32 {
     if(isEmpty(PREFIX)) {
-        PREFIX = "C:/workspaces-local/libraries/$$TARGET"
+        PREFIX = "F:/workspaces/libraries/$$TARGET"
     }
 
     BINDIR = $$PREFIX/lib
@@ -65,4 +65,3 @@ target.path = $$BINDIR
 INSTALLS += target
 
 QMAKE_POST_LINK = $$quote(xcopy /s /q /y /i $$system_path($$absolute_path(include)) $$system_path($$INCDIR))
-message($$QMAKE_POST_LINK)

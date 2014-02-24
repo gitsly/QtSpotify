@@ -5,6 +5,8 @@
 #include <QtSpotify/Core/playlist.h>
 #include <QtSpotify/Core/playlistcontainer.h>
 
+#include <QtCore/QDebug>
+
 #include <libspotify/api.h>
 
 namespace QtSpotify {
@@ -20,6 +22,11 @@ User::User(sp_user* user)
 User::~User()
 {
 
+}
+
+bool User::loaded() const
+{
+    return sp_user_is_loaded(m_spUser.get());
 }
 
 QString User::displayName() const
@@ -44,6 +51,8 @@ PlaylistContainer* User::playlistContainer() const
 
 void User::loadMetaData()
 {
+    qDebug() << "User loaded status: " << loaded();
+
     m_displayName = QString::fromUtf8(sp_user_display_name(m_spUser.get()));
     m_canonicalName = QString::fromUtf8(sp_user_canonical_name(m_spUser.get()));
     m_starredList = std::make_shared<Playlist>(sp_session_starred_for_user_create(

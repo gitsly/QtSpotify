@@ -30,6 +30,8 @@ public:
     explicit PlaylistContainer(sp_playlistcontainer* container);
     virtual ~PlaylistContainer();
 
+    bool loaded() const;
+
     QQmlListProperty<Playlist> playlists();
 
 protected:

@@ -19,8 +19,8 @@ Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist) :
     m_popularity(0),
     m_disc(0),
     m_discIndex(0),
-    m_offlineStatus(TrackOfflineStatus::No),
-    m_spTrack(nullptr)
+    m_offlineStatus(TrackOfflineStatus::No)
+    //m_spTrack(nullptr)
 {
     if(playlist != nullptr) {
         m_playlist = std::weak_ptr<Playlist>(playlist);
@@ -35,6 +35,11 @@ Track::Track(sp_track* track, std::shared_ptr<Playlist> playlist) :
 Track::~Track()
 {
 
+}
+
+bool Track::loaded() const
+{
+    return sp_track_is_loaded(m_spTrack.get());
 }
 
 QQmlListProperty<Artist> Track::artists()
@@ -95,6 +100,8 @@ TrackOfflineStatus Track::offlineStatus() const
 void Track::onMetadataUpdated()
 {
     bool updated = false;
+
+    qDebug() << "Track loaded status: " << loaded();
 
     bool starred = sp_track_is_starred(Spotify::instance().session().get(), m_spTrack.get());
     QString name = sp_track_name(m_spTrack.get());

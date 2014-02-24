@@ -6,8 +6,11 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+#include <QtCore/QMutex>
 
 namespace QtSpotify {
+
+std::shared_ptr<Spotify> Spotify::m_instance = nullptr;
 
 Spotify::Spotify() :
     QObject(nullptr),
@@ -17,8 +20,17 @@ Spotify::Spotify() :
     m_config(nullptr),
     m_networkManager(nullptr)
 {
-    m_networkManager = std::make_shared<QNetworkConfigurationManager>();
 
+}
+
+Spotify::~Spotify()
+{
+
+}
+
+void Spotify::init()
+{
+    //m_networkManager = std::shared_ptr<QNetworkConfigurationManager>(new QNetworkConfigurationManager());
     m_callbacks = std::shared_ptr<sp_session_callbacks>(new sp_session_callbacks());
     m_callbacks->logged_in = &Spotify::loggedInCallback;
     m_callbacks->logged_out = &Spotify::loggedOutCallback;
@@ -29,19 +41,22 @@ Spotify::Spotify() :
     m_callbacks->offline_error = &Spotify::offlineErrorCallback;
 
     m_config = std::shared_ptr<sp_session_config>(new sp_session_config());
+    memset(m_config.get(), 0, sizeof(sp_session_config));
     m_config->api_version = SPOTIFY_API_VERSION;
     m_config->application_key = g_appkey;
     m_config->application_key_size = g_appkey_size;
     m_config->user_agent = "QtSpotify-xarxer-0.1";
     m_config->device_id = "xarxer-mainpc-1.0";
     m_config->cache_location = "cache";
-    m_config->settings_location = "settings";
+    m_config->settings_location = "cache";
     m_config->callbacks = m_callbacks.get();
 
-    sp_session* tmpSession;
+    sp_session* tmpSession = nullptr;
 
+    qDebug() << "Creating session";
     sp_error error = sp_session_create(m_config.get(), &tmpSession);
     m_spSession = std::shared_ptr<sp_session>(tmpSession, deleteSession);
+    qDebug() << "Finished creating session";
 
     checkNetwork();
 
@@ -53,15 +68,14 @@ Spotify::Spotify() :
     }
 }
 
-Spotify::~Spotify()
-{
-
-}
-
 Spotify& Spotify::instance()
 {
-    static Spotify inst;
-    return inst;
+    if(m_instance == nullptr) {
+        m_instance = std::shared_ptr<Spotify>(new Spotify());
+        m_instance->init();
+    }
+
+    return *m_instance.get();
 }
 
 User* Spotify::user() const

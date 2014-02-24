@@ -47,8 +47,11 @@ private:
     Spotify();
     Q_DISABLE_COPY(Spotify)
 
+    void init();
     void checkNetwork();
     void processSpotifyEvents();
+
+    static std::shared_ptr<Spotify> m_instance;
 
     std::shared_ptr<QtSpotify::User> m_user;
 

@@ -6,6 +6,8 @@
 #include <QtSpotify/Core/user.h>
 #include <QtSpotify/Core/playlist.h>
 
+#include <QtCore/QDebug>
+
 
 namespace QtSpotify {
 
@@ -13,7 +15,7 @@ QHash<sp_playlistcontainer*, PlaylistContainer*> PlaylistContainer::containerObj
 
 PlaylistContainer::PlaylistContainer(sp_playlistcontainer* container) :
     QObject(nullptr),
-    m_spContainer(nullptr),
+    //m_spContainer(nullptr),
     m_callbacks(nullptr)
 {
     sp_playlistcontainer_add_ref(container);
@@ -34,6 +36,11 @@ PlaylistContainer::PlaylistContainer(sp_playlistcontainer* container) :
 PlaylistContainer::~PlaylistContainer()
 {
 
+}
+
+bool PlaylistContainer::loaded() const
+{
+    return sp_playlistcontainer_is_loaded(m_spContainer.get());
 }
 
 QQmlListProperty<Playlist> PlaylistContainer::playlists()
@@ -80,6 +87,8 @@ bool PlaylistContainer::event(QEvent* e)
 
 void PlaylistContainer::onMetadataUpdated()
 {
+    qDebug() << "Container loaded status: " << loaded();
+
     if(m_playlists.isEmpty()) {
         qint32 numPlaylists = sp_playlistcontainer_num_playlists(m_spContainer.get());
 
